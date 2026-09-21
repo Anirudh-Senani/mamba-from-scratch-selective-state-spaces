@@ -77,8 +77,16 @@ def make_diagonal_a(log_a):
     # TODO: Map unconstrained log-A of shape (E, N) to a strictly negative diagonal A....
     return -torch.exp(log_a)
 
-# Step 8 - discretize_a_zoh (not yet solved)
-# TODO: implement
+# Step 8 - discretize_a_zoh
+def discretize_a_zoh(delta, a):
+    """Discretize a diagonal continuous state matrix with zero-order hold.
+
+    delta: torch tensor of shape (..., d)
+    a: torch tensor of shape (d, n)
+    Returns a_bar of shape (..., d, n).
+    """
+    # TODO: Implement `discretize_a_zoh` to discretize a diagonal state matrix with zero-order hold.
+    return torch.exp(delta.unsqueeze(-1) * a)
 
 # Step 9 - discretize_b_zoh (not yet solved)
 # TODO: implement
