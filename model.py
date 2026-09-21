@@ -40,8 +40,16 @@ def causal_depthwise_conv1d(x, weight, bias=None):
 
     return torch.nn.functional.conv1d(x, weight, bias=bias, groups=E).transpose(1, 2)
 
-# Step 4 - in_proj_split (not yet solved)
-# TODO: implement
+# Step 4 - in_proj_split
+def in_proj_split(u, weight, bias=None):
+    """Project tokens to expanded inner width and split into SSM input x and gate z."""
+    # TODO: Project a token sequence to expanded width and split into SSM input x and gate z.
+    proj = u @ weight.T
+    E = weight.shape[0]//2
+    if bias is not None:
+        proj += bias
+
+    return proj[:,:,:E], proj[:,:,E:]
 
 # Step 5 - compute_delta (not yet solved)
 # TODO: implement

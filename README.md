@@ -13,7 +13,7 @@ python scaffold.py
 - [x] **1.** rms_norm
 - [x] **2.** silu
 - [x] **3.** causal_depthwise_conv1d
-- [ ] **4.** in_proj_split
+- [x] **4.** in_proj_split
 - [ ] **5.** compute_delta
 - [ ] **6.** project_bc
 - [ ] **7.** make_diagonal_a
