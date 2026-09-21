@@ -71,8 +71,11 @@ def project_bc(x, weight_b, weight_c):
     # TODO: Map an SSM input sequence to a pair of input-dependent B and C state vectors...
     return x @ weight_b.T, x @ weight_c.T
 
-# Step 7 - make_diagonal_a (not yet solved)
-# TODO: implement
+# Step 7 - make_diagonal_a
+def make_diagonal_a(log_a):
+    """Map unconstrained log-A of shape (E, N) to a strictly negative diagonal A."""
+    # TODO: Map unconstrained log-A of shape (E, N) to a strictly negative diagonal A....
+    return -torch.exp(log_a)
 
 # Step 8 - discretize_a_zoh (not yet solved)
 # TODO: implement

@@ -16,7 +16,7 @@ python scaffold.py
 - [x] **4.** in_proj_split
 - [x] **5.** compute_delta
 - [x] **6.** project_bc
-- [ ] **7.** make_diagonal_a
+- [x] **7.** make_diagonal_a
 - [ ] **8.** discretize_a_zoh
 - [ ] **9.** discretize_b_zoh
 - [ ] **10.** compare_euler_zoh_b
