@@ -51,8 +51,19 @@ def in_proj_split(u, weight, bias=None):
 
     return proj[:,:,:E], proj[:,:,E:]
 
-# Step 5 - compute_delta (not yet solved)
-# TODO: implement
+# Step 5 - compute_delta
+def compute_delta(x, weight, bias=None):
+    """Compute a strictly positive per-token timestep Delta.
+
+    x: (B, L, E), weight: (E, E) nn.Linear layout, bias: optional (E,).
+    Returns delta of shape (B, L, E).
+    """
+    # TODO: Implement compute_delta to produce a strictly positive per-token timestep Delta.
+    delta = x @ weight.T
+    if bias is not None:
+        delta += bias
+
+    return torch.log(1 + torch.exp(delta))
 
 # Step 6 - project_bc (not yet solved)
 # TODO: implement
