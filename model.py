@@ -152,8 +152,24 @@ def scan_single_channel(x, a_bar, b_bar, c, h0=None):
 
     return y, h_t
 
-# Step 13 - selective_scan (not yet solved)
-# TODO: implement
+# Step 13 - selective_scan
+def selective_scan(x, a_bar, b_bar, c, h0=None):
+    """Run a selective scan over a batched multi-channel sequence."""
+    # TODO: Run a selective scan over a batched multi-channel sequence...
+    B, L, E, N = a_bar.shape
+
+    if h0 is None:
+        h0 = torch.zeros((B, E, N), dtype=x.dtype, device=x.device)
+
+    y = torch.zeros((B, L, E), dtype=x.dtype, device=x.device)
+    h_final = torch.zeros((B, E, N), dtype=x.dtype, device=x.device)
+    for b in range(B):
+        for e in range(E):
+            y_be, h_f_be = scan_single_channel(x[b,:,e], a_bar[b,:,e,:], b_bar[b,:,e,:], c[b], h0[b,e])
+            y[b,:,e] = y_be
+            h_final[b, e] = h_f_be
+
+    return y, h_final
 
 # Step 14 - compare_constant_vs_selective_delta (not yet solved)
 # TODO: implement

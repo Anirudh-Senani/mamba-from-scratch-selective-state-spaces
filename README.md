@@ -22,7 +22,7 @@ python scaffold.py
 - [x] **10.** compare_euler_zoh_b
 - [x] **11.** siso_state_update
 - [x] **12.** scan_single_channel
-- [ ] **13.** selective_scan
+- [x] **13.** selective_scan
 - [ ] **14.** compare_constant_vs_selective_delta
 - [ ] **15.** gate_scan_output
 - [ ] **16.** out_proj
