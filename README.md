@@ -15,7 +15,7 @@ python scaffold.py
 - [x] **3.** causal_depthwise_conv1d
 - [x] **4.** in_proj_split
 - [x] **5.** compute_delta
-- [ ] **6.** project_bc
+- [x] **6.** project_bc
 - [ ] **7.** make_diagonal_a
 - [ ] **8.** discretize_a_zoh
 - [ ] **9.** discretize_b_zoh

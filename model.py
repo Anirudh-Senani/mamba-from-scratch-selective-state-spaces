@@ -65,8 +65,11 @@ def compute_delta(x, weight, bias=None):
 
     return torch.log(1 + torch.exp(delta))
 
-# Step 6 - project_bc (not yet solved)
-# TODO: implement
+# Step 6 - project_bc
+def project_bc(x, weight_b, weight_c):
+    """Project the SSM input to input-dependent B and C state vectors of size N."""
+    # TODO: Map an SSM input sequence to a pair of input-dependent B and C state vectors...
+    return x @ weight_b.T, x @ weight_c.T
 
 # Step 7 - make_diagonal_a (not yet solved)
 # TODO: implement
