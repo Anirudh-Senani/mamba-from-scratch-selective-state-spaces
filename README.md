@@ -18,7 +18,7 @@ python scaffold.py
 - [x] **6.** project_bc
 - [x] **7.** make_diagonal_a
 - [x] **8.** discretize_a_zoh
-- [ ] **9.** discretize_b_zoh
+- [x] **9.** discretize_b_zoh
 - [ ] **10.** compare_euler_zoh_b
 - [ ] **11.** siso_state_update
 - [ ] **12.** scan_single_channel
