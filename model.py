@@ -171,8 +171,32 @@ def selective_scan(x, a_bar, b_bar, c, h0=None):
 
     return y, h_final
 
-# Step 14 - compare_constant_vs_selective_delta (not yet solved)
-# TODO: implement
+# Step 14 - compare_constant_vs_selective_delta
+def compare_constant_vs_selective_delta(x, a, b, c, delta_const, delta_sel):
+    """Compare SSM scan outputs under a constant Delta versus a selective Delta.
+
+    x: (batch, seq_len, d_inner)
+    a: (d_inner, d_state) strictly negative continuous diagonal A
+    b: (batch, seq_len, d_state)
+    c: (batch, seq_len, d_state)
+    delta_const: (batch, seq_len, d_inner) non-selective timestep
+    delta_sel: (batch, seq_len, d_inner) input-dependent timestep
+
+    Returns:
+        y_const: (batch, seq_len, d_inner)
+        y_sel: (batch, seq_len, d_inner)
+    """
+    # TODO: Compare SSM scan outputs under a constant Delta versus a selective Delta...
+    a_bar_const = discretize_a_zoh(delta_const, a)
+    a_bar_sel = discretize_a_zoh(delta_sel, a)
+
+    b_bar_const = discretize_b_zoh(delta_const, a, b)
+    b_bar_sel = discretize_b_zoh(delta_sel, a, b)
+
+    y_const, _ = selective_scan(x, a_bar_const, b_bar_const, c)
+    y_sel, _ = selective_scan(x, a_bar_sel, b_bar_sel, c)
+
+    return y_const, y_sel
 
 # Step 15 - gate_scan_output (not yet solved)
 # TODO: implement
