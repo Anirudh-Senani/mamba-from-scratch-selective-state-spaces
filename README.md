@@ -21,7 +21,7 @@ python scaffold.py
 - [x] **9.** discretize_b_zoh
 - [x] **10.** compare_euler_zoh_b
 - [x] **11.** siso_state_update
-- [ ] **12.** scan_single_channel
+- [x] **12.** scan_single_channel
 - [ ] **13.** selective_scan
 - [ ] **14.** compare_constant_vs_selective_delta
 - [ ] **15.** gate_scan_output

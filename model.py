@@ -136,8 +136,21 @@ def siso_state_update(h_prev, a_bar, b_bar, c, x_t):
 
     return y_t, h_t
 
-# Step 12 - scan_single_channel (not yet solved)
-# TODO: implement
+# Step 12 - scan_single_channel
+def scan_single_channel(x, a_bar, b_bar, c, h0=None):
+    """Scan a single channel sequentially over time and return both the outputs and the final hidden state."""
+    # TODO: Produce every output and the final hidden state of a single SSM channel...
+    L, N = a_bar.shape
+    if h0 is None:
+        h0 = torch.zeros(N, dtype=x.dtype, device=x.device)
+
+    h_t = h0
+    y = torch.zeros(L, dtype=x.dtype, device=x.device)
+    for t in range(L):
+        y_t, h_t = siso_state_update(h_t, a_bar[t], b_bar[t], c[t], x[t])
+        y[t] = y_t
+
+    return y, h_t
 
 # Step 13 - selective_scan (not yet solved)
 # TODO: implement
