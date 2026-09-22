@@ -310,8 +310,63 @@ def next_token_cross_entropy(logits, token_ids):
     B, T, V = logprobs.shape
     return (-logprobs[torch.arange(B)[:,None], torch.arange(T-1)[None,:], token_ids[:,1:]]).mean()
 
-# Step 22 - sgd_training_step (not yet solved)
-# TODO: implement
+# Step 22 - sgd_training_step
+def sgd_training_step(token_ids, params, lr):
+    """Run one vanilla SGD step of next-token prediction and return the loss.
+
+    Args:
+        token_ids: (B, L) integer tensor of token ids with L >= 2.
+        params: dict with embed_weight (V, D), lm_head_weight (V, D),
+            norm_weight (D,), and blocks (list of nested param dicts).
+            Parameter tensors must have requires_grad=True and are updated in place.
+        lr: vanilla SGD learning rate.
+
+    Returns:
+        Python float, the next-token cross-entropy from this step.
+    """
+    # TODO: Implement sgd_training_step to run a single next-token training update...
+    def zero_grad(params):
+        if isinstance(params, (list, tuple)):
+            for i in range(len(params)):
+                zero_grad(params[i])
+        elif isinstance(params, dict):
+            for key in params:
+                zero_grad(params[key])
+        else:
+            params.grad = None
+
+
+    def update_params(params, lr):
+        if isinstance(params, (list, tuple)):
+            # new_params = []
+            for i in range(len(params)):
+                # new_params.append(update_params(params[i], lr))
+                params[i] = update_params(params[i], lr)
+        elif isinstance(params, dict):
+            # new_params = {}
+            for key in params:
+                # new_params[key] = update_params(params[key], lr)
+                params[key] = update_params(params[key], lr)
+        else:
+            # new_params = params
+            if params is not None and params.grad is not None:
+                # new_params = params - lr * params.grad
+                params -= lr*params.grad
+
+        # return new_params
+        return params
+
+
+    logits = mamba_lm_forward(token_ids, params)
+    loss = next_token_cross_entropy(logits, token_ids)
+
+    zero_grad(params)
+    loss.backward()
+
+    with torch.no_grad():
+        params = update_params(params, lr)
+
+    return loss.item()
 
 # Step 23 - mamba_recurrent_step (not yet solved)
 # TODO: implement

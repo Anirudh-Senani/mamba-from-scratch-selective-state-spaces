@@ -31,7 +31,7 @@ python scaffold.py
 - [x] **19.** run_mamba_lm_stack
 - [x] **20.** mamba_lm_forward
 - [x] **21.** next_token_cross_entropy
-- [ ] **22.** sgd_training_step
+- [x] **22.** sgd_training_step
 - [ ] **23.** mamba_recurrent_step
 - [ ] **24.** greedy_generate
 - [ ] **25.** train_tiny_mamba_and_generate
