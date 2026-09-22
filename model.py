@@ -220,8 +220,32 @@ def out_proj(y, weight, bias=None):
 
     return out
 
-# Step 17 - mamba_mixer (not yet solved)
-# TODO: implement
+# Step 17 - mamba_mixer
+def mamba_mixer(u, params):
+    """Run one full Mamba selective-SSM mixer on a token sequence.
+
+    Args:
+        u: (B, L, D) input sequence.
+        params: dict of mixer weights. See the step description for keys.
+
+    Returns:
+        (B, L, D) mixer output.
+    """
+    # TODO: Run one full Mamba selective-SSM mixer on a batch of token sequences.
+    x, z = in_proj_split(u, params['in_proj_weight'], params.get('in_proj_bias', None))
+    x = causal_depthwise_conv1d(x, params['conv_weight'], params.get('conv_bias', None))
+    x = silu(x)
+    delta = compute_delta(x, params['dt_weight'], params.get('dt_bias', None))
+
+    b, c = project_bc(x, params['weight_b'], params['weight_c'])
+    a = make_diagonal_a(params['log_a'])
+    a_bar = discretize_a_zoh(delta, a)
+    b_bar = discretize_b_zoh(delta, a, b)
+
+    y, _ = selective_scan(x, a_bar, b_bar, c)
+    out = gate_scan_output(y, z)
+
+    return out_proj(out, params['out_proj_weight'], params.get('out_proj_bias', None))
 
 # Step 18 - mamba_block (not yet solved)
 # TODO: implement

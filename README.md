@@ -26,7 +26,7 @@ python scaffold.py
 - [x] **14.** compare_constant_vs_selective_delta
 - [x] **15.** gate_scan_output
 - [x] **16.** out_proj
-- [ ] **17.** mamba_mixer
+- [x] **17.** mamba_mixer
 - [ ] **18.** mamba_block
 - [ ] **19.** run_mamba_lm_stack
 - [ ] **20.** mamba_lm_forward
