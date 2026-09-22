@@ -247,8 +247,20 @@ def mamba_mixer(u, params):
 
     return out_proj(out, params['out_proj_weight'], params.get('out_proj_bias', None))
 
-# Step 18 - mamba_block (not yet solved)
-# TODO: implement
+# Step 18 - mamba_block
+def mamba_block(x, params):
+    """Apply a pre-norm residual Mamba block to a token sequence.
+
+    Args:
+        x: (B, L, D) hidden sequence.
+        params: dict with norm_weight (D,) plus every mamba_mixer key.
+
+    Returns:
+        (B, L, D) block output.
+    """
+    # TODO: Wrap the selective mixer in a pre-norm residual block...
+    u = rms_norm(x, params['norm_weight'])
+    return mamba_mixer(u, params) + x
 
 # Step 19 - run_mamba_lm_stack (not yet solved)
 # TODO: implement

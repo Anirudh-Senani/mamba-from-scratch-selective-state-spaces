@@ -27,7 +27,7 @@ python scaffold.py
 - [x] **15.** gate_scan_output
 - [x] **16.** out_proj
 - [x] **17.** mamba_mixer
-- [ ] **18.** mamba_block
+- [x] **18.** mamba_block
 - [ ] **19.** run_mamba_lm_stack
 - [ ] **20.** mamba_lm_forward
 - [ ] **21.** next_token_cross_entropy
