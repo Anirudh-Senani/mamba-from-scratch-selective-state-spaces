@@ -281,8 +281,23 @@ def run_mamba_lm_stack(embeddings, params):
 
     return rms_norm(x, params['norm_weight'])
 
-# Step 20 - mamba_lm_forward (not yet solved)
-# TODO: implement
+# Step 20 - mamba_lm_forward
+def mamba_lm_forward(token_ids, params):
+    """Map token ids through embeddings, the Mamba stack, and an LM head.
+
+    Args:
+        token_ids: (B, L) integer tensor of token ids.
+        params: dict with embed_weight (V, D), lm_head_weight (V, D),
+            blocks (list), and norm_weight (D,).
+
+    Returns:
+        (B, L, V) logits.
+    """
+    # TODO: Map a batch of token ids to next-token logits over the vocabulary...
+    embeddings = params['embed_weight'][token_ids]
+    x = run_mamba_lm_stack(embeddings, params)
+
+    return x @ params['lm_head_weight'].T
 
 # Step 21 - next_token_cross_entropy (not yet solved)
 # TODO: implement
