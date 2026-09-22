@@ -24,7 +24,7 @@ python scaffold.py
 - [x] **12.** scan_single_channel
 - [x] **13.** selective_scan
 - [x] **14.** compare_constant_vs_selective_delta
-- [ ] **15.** gate_scan_output
+- [x] **15.** gate_scan_output
 - [ ] **16.** out_proj
 - [ ] **17.** mamba_mixer
 - [ ] **18.** mamba_block
