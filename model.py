@@ -101,8 +101,7 @@ def discretize_b_zoh(delta, a, b):
         b_bar: (batch, seq_len, d_inner, d_state) discrete B.
     """
     # TODO: Convert continuous B into discrete B_bar with the exact diagonal ZOH formula...
-    a_bar = discretize_a_zoh(delta, a)
-    return ((a_bar - 1)/a) * b.unsqueeze(2)
+    return (torch.expm1(delta.unsqueeze(-1) * a)/a) * b.unsqueeze(2)
 
 # Step 10 - compare_euler_zoh_b
 def compare_euler_zoh_b(delta, a, b):
@@ -368,8 +367,46 @@ def sgd_training_step(token_ids, params, lr):
 
     return loss.item()
 
-# Step 23 - mamba_recurrent_step (not yet solved)
-# TODO: implement
+# Step 23 - mamba_recurrent_step
+def mamba_recurrent_step(token_ids, params, cache=None):
+    """Consume one token and return next-token logits plus an updated SSM/conv cache."""
+    # TODO: Consume one token and return next-token logits plus an updated SSM/conv cache.
+    batch = token_ids.shape[0]
+    K = params['blocks'][0]['conv_weight'].shape[-1]
+    d_state, d_inner = params['blocks'][0]['weight_b'].shape
+    params_dtype = params['blocks'][0]['conv_weight'].dtype
+    if cache is None:
+        conv_states = [torch.zeros((batch, K-1, d_inner), dtype=params_dtype) for _ in range(len(params['blocks']))]
+        ssm_states = [torch.zeros((batch, d_inner, d_state), dtype=params_dtype) for _ in range(len(params['blocks']))]
+        cache = {'conv_states':conv_states, 'ssm_states':ssm_states}
+
+    token_ids = token_ids.unsqueeze(-1) if len(token_ids.shape) < 2 else token_ids
+    emb = params['embed_weight'][token_ids]
+    for i, param in enumerate(params['blocks']):
+        u = rms_norm(emb, param['norm_weight'])
+        x, z = in_proj_split(u, param['in_proj_weight'], param.get('in_proj_bias', None))
+        cache['conv_states'][i] = torch.cat([cache['conv_states'][i],x], dim=1)[:, -K:]
+        x = causal_depthwise_conv1d(cache['conv_states'][i], param['conv_weight'], param.get('conv_bias', None))
+        x = silu(x)
+        delta = compute_delta(x, param['dt_weight'], param.get('dt_bias', None))
+        cache['conv_states'][i] = cache['conv_states'][i][:,1:]
+
+        b, c = project_bc(x, param['weight_b'], param['weight_c'])
+        a = make_diagonal_a(param['log_a'])
+        a_bar = discretize_a_zoh(delta, a)
+        b_bar = discretize_b_zoh(delta, a, b)
+
+        y, ssm_state = selective_scan(x, a_bar, b_bar, c, cache['ssm_states'][i])
+        cache['ssm_states'][i] = ssm_state
+        out = gate_scan_output(y, z)
+
+        out = out_proj(out, param['out_proj_weight'], param.get('out_proj_bias', None))
+        emb = out + emb
+
+    emb = rms_norm(emb, params['norm_weight'])
+    logits = emb @ params['lm_head_weight'].T
+
+    return logits[:,-1], cache
 
 # Step 24 - greedy_generate (not yet solved)
 # TODO: implement
