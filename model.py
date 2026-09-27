@@ -413,8 +413,23 @@ def mamba_recurrent_step(token_ids, params, cache=None):
 
     return logits[:,-1], cache
 
-# Step 24 - greedy_generate (not yet solved)
-# TODO: implement
+# Step 24 - greedy_generate
+def greedy_generate(prompt_ids, params, max_new_tokens):
+    """Greedily generate new token ids from a prompt using a carried SSM cache."""
+    # TODO: Return a 1D LongTensor of the prompt ids followed by greedily chosen ids...
+    cache = None
+    for t in range(prompt_ids.shape[0]):
+        logits, cache = mamba_recurrent_step(prompt_ids[t:t+1], params, cache)
+
+    new_tokens = []
+    for _ in range(max_new_tokens):
+        token = torch.argmax(logits, dim=-1)
+        logits, cache = mamba_recurrent_step(token.unsqueeze(0), params, cache)
+        new_tokens.append(token.item())
+
+    new_tokens = torch.tensor(new_tokens, dtype=torch.long)
+
+    return torch.cat([prompt_ids, new_tokens])
 
 # Step 25 - train_tiny_mamba_and_generate (not yet solved)
 # TODO: implement
