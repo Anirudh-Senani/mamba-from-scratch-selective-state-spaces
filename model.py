@@ -376,18 +376,22 @@ def mamba_recurrent_step(token_ids, params, cache=None):
     d_state, d_inner = params['blocks'][0]['weight_b'].shape
     params_dtype = params['blocks'][0]['conv_weight'].dtype
     if cache is None:
-        conv_states = [torch.zeros((batch, K-1, d_inner), dtype=params_dtype) for _ in range(len(params['blocks']))]
-        ssm_states = [torch.zeros((batch, d_inner, d_state), dtype=params_dtype) for _ in range(len(params['blocks']))]
+        conv_states = [torch.zeros((batch, K-1, d_inner), dtype=torch.float32) for _ in range(len(params['blocks']))]
+        ssm_states = [torch.zeros((batch, d_inner, d_state), dtype=torch.float32) for _ in range(len(params['blocks']))]
         cache = {'conv_states':conv_states, 'ssm_states':ssm_states}
 
     token_ids = token_ids.unsqueeze(-1) if len(token_ids.shape) < 2 else token_ids
     emb = params['embed_weight'][token_ids]
     for i, param in enumerate(params['blocks']):
         u = rms_norm(emb, param['norm_weight'])
-        x, z = in_proj_split(u, param['in_proj_weight'], param.get('in_proj_bias', None))
+        in_proj_bias = param['in_proj_bias'] if 'in_proj_bias' in param else None
+        x, z = in_proj_split(u, param['in_proj_weight'], in_proj_bias)
         cache['conv_states'][i] = torch.cat([cache['conv_states'][i],x], dim=1)[:, -K:]
-        x = causal_depthwise_conv1d(cache['conv_states'][i], param['conv_weight'], param.get('conv_bias', None))
+        conv_bias = param['conv_bias'] if 'conv_bias' in param else None
+        conv_out = causal_depthwise_conv1d(cache['conv_states'][i], param['conv_weight'], conv_bias)
+        x = conv_out[:, -1:, :]
         x = silu(x)
+        dt_bias = param['dt_bias'] if 'dt_bias' in param else None
         delta = compute_delta(x, param['dt_weight'], param.get('dt_bias', None))
         cache['conv_states'][i] = cache['conv_states'][i][:,1:]
 
@@ -396,6 +400,7 @@ def mamba_recurrent_step(token_ids, params, cache=None):
         a_bar = discretize_a_zoh(delta, a)
         b_bar = discretize_b_zoh(delta, a, b)
 
+        # y, ssm_state = selective_scan(x.double(), a_bar.double(), b_bar.double(), c.double(), cache['ssm_states'][i].double())
         y, ssm_state = selective_scan(x, a_bar, b_bar, c, cache['ssm_states'][i])
         cache['ssm_states'][i] = ssm_state
         out = gate_scan_output(y, z)
