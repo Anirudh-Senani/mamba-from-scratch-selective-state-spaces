@@ -34,7 +34,7 @@ python scaffold.py
 - [x] **22.** sgd_training_step
 - [x] **23.** mamba_recurrent_step
 - [x] **24.** greedy_generate
-- [ ] **25.** train_tiny_mamba_and_generate
+- [x] **25.** train_tiny_mamba_and_generate
 
 ---
 

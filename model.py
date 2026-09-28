@@ -431,6 +431,86 @@ def greedy_generate(prompt_ids, params, max_new_tokens):
 
     return torch.cat([prompt_ids, new_tokens])
 
-# Step 25 - train_tiny_mamba_and_generate (not yet solved)
-# TODO: implement
+# Step 25 - train_tiny_mamba_and_generate
+# import torch.nn.init as init
+
+
+def train_tiny_mamba_and_generate(corpus, n_steps, lr, prompt, max_new_tokens, d_model=16, n_layers=2, d_state=4, d_inner=32, conv_kernel=3, seed=0):
+    """Train a tiny character-level Mamba LM on corpus and greedily generate from prompt."""
+    # TODO: Train a tiny character-level Mamba LM and return generated text plus losses.
+    stoi = {}
+    itos = {}
+
+    for ind, s in enumerate(sorted(set(corpus))):
+        stoi[s] = ind
+        itos[ind] = s
+
+    vocab_size = len(stoi)
+
+    dataset = torch.tensor([stoi[ch] for ch in corpus], dtype=torch.long).unsqueeze(0)
+    # X = dataset[:-1].unsqueeze(-1)
+    # y = dataset[1:].unsqueeze(-1)
+    prompt_ids = torch.tensor([stoi[ch] for ch in prompt], dtype=torch.long)
+
+    torch.manual_seed(seed)
+    params = {}
+    # params['embed_weight'] = nn.Linear(d_model, vocab_size)
+    # params['norm_weight'] = nn.Linear(*, d_model)
+    # init.normal_(params['embed_weight'].weight, mean=0.0, std=0.02)
+    # init.constant_(params['embed_weight'].bias, 0.0)
+
+    params['embed_weight'] = torch.normal(mean=0.0, std=0.02, size=(vocab_size, d_model), dtype=torch.float32)
+    params['embed_weight'].requires_grad = True
+
+    params['lm_head_weight'] = torch.normal(mean=0.0, std=0.02, size=(vocab_size, d_model), dtype=torch.float32)
+    params['lm_head_weight'].requires_grad = True
+
+    params['norm_weight'] = torch.normal(mean=0.0, std=0.02, size=(d_model,), dtype=torch.float32)
+    params['norm_weight'].requires_grad = True
+    params['blocks'] = []
+
+    for _ in range(n_layers):
+        block = {}
+        block['norm_weight'] = torch.normal(mean=0.0, std=0.02, size=(d_model,), dtype=torch.float32)
+        block['norm_weight'].requires_grad = True
+
+        block['in_proj_weight'] = torch.normal(mean=0.0, std=0.02, size=(2*d_inner, d_model), dtype=torch.float32)
+        block['in_proj_weight'].requires_grad = True
+        block['in_proj_bias'] = torch.zeros((2*d_inner,), dtype=torch.float32)
+        block['in_proj_bias'].requires_grad = True
+
+        block['conv_weight'] = torch.normal(mean=0.0, std=0.02, size=(d_inner, conv_kernel), dtype=torch.float32)
+        block['conv_weight'].requires_grad = True
+        block['conv_bias'] = torch.zeros((d_inner,), dtype=torch.float32)
+        block['conv_bias'].requires_grad = True
+
+        block['dt_weight'] = torch.normal(mean=0.0, std=0.02, size=(d_inner, d_inner), dtype=torch.float32)
+        block['dt_weight'].requires_grad = True
+        block['dt_bias'] = torch.zeros((d_inner,), dtype=torch.float32)
+        block['dt_bias'].requires_grad = True
+
+        block['weight_b'] = torch.normal(mean=0.0, std=0.02, size=(d_state, d_inner), dtype=torch.float32)
+        block['weight_b'].requires_grad = True
+        block['weight_c'] = torch.normal(mean=0.0, std=0.02, size=(d_state, d_inner), dtype=torch.float32)
+        block['weight_c'].requires_grad = True
+
+        block['log_a'] = torch.log((torch.arange(d_state, dtype=torch.float32) + 1.0).repeat(d_inner, 1)).clone()
+        block['log_a'].requires_grad = True
+
+        block['out_proj_weight'] = torch.normal(mean=0.0, std=0.02, size=(d_model, d_inner), dtype=torch.float32)
+        block['out_proj_weight'].requires_grad = True
+        block['out_proj_bias'] = torch.zeros((d_model,), dtype=torch.float32)
+        block['out_proj_bias'].requires_grad = True
+
+        params['blocks'].append(block)
+
+    losses = []
+    for _ in range(n_steps):
+        loss = sgd_training_step(dataset, params, lr)
+        losses.append(loss)
+
+    ids = greedy_generate(prompt_ids, params, max_new_tokens)
+    generated = "".join([itos[ind] for ind in ids.tolist()])
+
+    return generated, losses
 
